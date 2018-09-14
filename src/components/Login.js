@@ -14,20 +14,34 @@ import {
 import axios from "axios";
 import { Url } from "../constants/url";
 
+const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+
 export default class Login extends Component {
     state = {
         email: "",
-        password: ""
+        password: "",
+        remember: false
     };
+    componentDidMount() {
+        if (token) {
+            this.props.history.push("/users");
+        }
+    }
     handleInput = event => {
-        const { name, value } = event.target;
-        this.setState({
-            [name]: value
-        });
+        const { name, value, type, checked } = event.target;
+        if (type === "checkbox") {
+            this.setState({
+                [name]: checked
+            });
+        } else {
+            this.setState({
+                [name]: value
+            });
+        }
     };
     handleLogin = event => {
         event.preventDefault();
-        const { email, password } = this.state;
+        const { email, password, remember } = this.state;
         axios
             .post(`${Url}/login`, {
                 email,
@@ -35,14 +49,19 @@ export default class Login extends Component {
             })
             .then(response => {
                 const res = response.data;
-                localStorage.setItem("token", res.token);
+                if (remember) {
+                    localStorage.setItem("token", res.token);
+                } else {
+                    sessionStorage.setItem("token", res.token);
+                }
+                this.props.history.replace("users");
             })
             .catch(err => {
                 console.log("Error in login: ", err.response);
             });
     };
     render() {
-        const { email, password } = this.state;
+        const { email, password, remember } = this.state;
         return (
             <div style={{ size: "18rem" }}>
                 <Card>
@@ -66,6 +85,17 @@ export default class Login extends Component {
                                     value={password}
                                     onChange={this.handleInput}
                                 />
+                            </FormGroup>
+                            <FormGroup check>
+                                <Label check>
+                                    <Input
+                                        type="checkbox"
+                                        name="remember"
+                                        checked={remember}
+                                        onChange={this.handleInput}
+                                    />{" "}
+                                    Remember Me
+                                </Label>
                             </FormGroup>
                             <Button type="submit" color="primary">
                                 Login

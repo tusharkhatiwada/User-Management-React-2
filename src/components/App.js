@@ -6,7 +6,10 @@ import Home from "./Home";
 import Login from "./Login";
 import Register from "./Register";
 import Users from "./Users";
+import UserDetail from "./UserDetail";
 import NewUser from "./NewUser";
+
+const token = localStorage.getItem("token") || sessionStorage.getItem("token");
 
 export default class App extends Component {
     state = {
@@ -17,6 +20,11 @@ export default class App extends Component {
         this.setState({
             isOpen: !isOpen
         });
+    };
+    handleLogout = () => {
+        localStorage.removeItem("token");
+        sessionStorage.removeItem("token");
+        window.location.replace("/login");
     };
     render() {
         return (
@@ -38,9 +46,13 @@ export default class App extends Component {
                                         </NavLink>
                                     </NavItem>
                                     <NavItem>
-                                        <NavLink tag={Link} to="/login">
-                                            Login
-                                        </NavLink>
+                                        {token ? (
+                                            <NavLink onClick={this.handleLogout}>Logout</NavLink>
+                                        ) : (
+                                            <NavLink tag={Link} to="/login">
+                                                Login
+                                            </NavLink>
+                                        )}
                                     </NavItem>
                                 </Nav>
                             </Collapse>
@@ -50,6 +62,7 @@ export default class App extends Component {
                     <Route path="/login" component={Login} />
                     <Route path="/register" component={Register} />
                     <Route path="/users" component={Users} />
+                    <Route path="/user/:id" component={UserDetail} />
                     <Route path="/new-user" component={NewUser} />
                 </div>
             </Router>

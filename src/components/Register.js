@@ -11,6 +11,8 @@ import {
     Label,
     Input
 } from "reactstrap";
+import axios from "axios";
+import { Url } from "../constants/url";
 
 export default class Register extends Component {
     state = {
@@ -23,9 +25,22 @@ export default class Register extends Component {
             [name]: value
         });
     };
-    handleLogin = event => {
+    handleRegister = event => {
         event.preventDefault();
-        console.log(this.state.email, this.state.password);
+        const { email, password } = this.state;
+        axios
+            .post(`${Url}/register`, {
+                email,
+                password
+            })
+            .then(response => {
+                const res = response.data;
+                console.log(res);
+                // localStorage.setItem("token", res.token);
+            })
+            .catch(err => {
+                console.log("Error in login: ", err.response);
+            });
     };
     render() {
         const { email, password } = this.state;
@@ -34,7 +49,7 @@ export default class Register extends Component {
                 <Card>
                     <CardBody>
                         <CardTitle>Login</CardTitle>
-                        <Form onSubmit={this.handleLogin}>
+                        <Form onSubmit={this.handleRegister}>
                             <FormGroup>
                                 <Label>Username</Label>
                                 <Input
